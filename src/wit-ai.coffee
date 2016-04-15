@@ -64,7 +64,7 @@ module.exports = (robot) ->
     else unless res.envelope.user.wit.context?
       res.envelope.user.wit.context = {}
 
-    wit_callback = (error, data) ->
+    wit.converse res.envelope.user, query, res.envelope.user.wit.context, (error, data) ->
       if error 
         robot.logger.debug('Wit error: #{error}')
       else 
@@ -79,5 +79,3 @@ module.exports = (robot) ->
             }
         if data.entities?
           res.envelope.user.wit.context.entities = data.entities
-
-    wit.converse res.envelope.user, query, res.envelope.user.wit.context, wit_callback
