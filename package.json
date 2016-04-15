@@ -17,6 +17,7 @@
   },
 
   "dependencies": {
+    "node-wit": "3.x"
   },
 
   "peerDependencies": {
