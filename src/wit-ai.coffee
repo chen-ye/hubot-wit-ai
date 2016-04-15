@@ -64,20 +64,20 @@ module.exports = (robot) ->
     else unless res.envelope.user.wit.context?
       res.envelope.user.wit.context = {}
 
-  wit_callback = (error, data) ->
-    if error 
-      robot.logger.debug('Wit error: #{error}')
-    else 
-      if data.msg?
-        res.send data.msg
-      if data.action?
-          robot.emit "#{data.action}",
-          {
-            res: res
-            entities: data.entities
-            msg: data.msg
-          }
-      if data.entities?
-        res.envelope.user.wit.context.entities = data.entities
+    wit_callback = (error, data) ->
+      if error 
+        robot.logger.debug('Wit error: #{error}')
+      else 
+        if data.msg?
+          res.send data.msg
+        if data.action?
+            robot.emit "#{data.action}",
+            {
+              res: res
+              entities: data.entities
+              msg: data.msg
+            }
+        if data.entities?
+          res.envelope.user.wit.context.entities = data.entities
 
-  wit.converse res.envelope.user, query, res.envelope.user.wit.context, wit_callback
+    wit.converse res.envelope.user, query, res.envelope.user.wit.context, wit_callback
