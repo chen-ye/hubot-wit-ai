@@ -17,7 +17,7 @@
 Wit = require('node-wit').Wit
 immersive = if process.env.HUBOT_WIT_IMMERSIVE is 'true' then true else false
 
-module.exports = (robot) ->
+#module.exports = (robot) ->
   #
   #actions = {
     #say: (sessionId, msg, cb) ->
