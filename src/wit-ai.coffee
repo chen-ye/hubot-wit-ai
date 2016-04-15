@@ -14,7 +14,7 @@
 # Author:
 #   tianwei.liu <tianwei.liu@target.com>
 
-Wit = require 'node-wit'.Wit
+Wit = require('node-wit').Wit
 immersive = if process.env.HUBOT_WIT_IMMERSIVE is 'true' then true else false
 
 module.exports = (robot) ->
