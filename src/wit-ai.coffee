@@ -14,43 +14,71 @@
 # Author:
 #   tianwei.liu <tianwei.liu@target.com>
 
+Wit = require 'node-wit'.Wit
+immersive = if process.env.HUBOT_WIT_IMMERSIVE is 'true' then true else false
+
 module.exports = (robot) ->
+  
+  actions = {
+    say: (sessionId, msg, cb) -> {
+      robot.logger.debug msg
+      cb()
+    },
+    merge: (context, entities, cb) -> {
+      cb context
+    },
+    error: (sessionid, msg) -> {
+      robot.logger.error 'Oops, I don\'t know what to do.'
+    },
+    'wait': (context, cb) -> {
+      
+      cb context
+    }
+  }
+  
+  unless process.env.HUBOT_WIT_TOKEN?
+		res.send "i am not on wit's friendlist yet. :("
+		robot.logger.error "HUBOT_WIT_TOKEN not set"
+	else
+	  wit = new Wit(process.env.HUBOT_WIT_TOKEN, actions, robot.logger)
+	
+  
+  
 	robot.respond /hey(, | )(.*)/i, (res) ->
 		query = res.match[2]
-		console.log "query: #{query}"
+		robot.logger.debug "query: #{query}"
 		askWit(query, res)
 
 	robot.hear ///hey\s+#{robot.name}(,\s+|\s+)(.*)///i, (res) ->
 		query = res.match[2]
-		console.log "query: #{query}"
+		robot.logger.debug "query: #{query}"
 		askWit(query, res)
+		
+	robot.hear /.*/i (res) ->
+	  if immersive
+	    query = res.match[0]
+		  console.log "query: #{query}"
+		  askWit(query, res)
 
 	askWit = (query, res) ->
-		unless process.env.HUBOT_WIT_TOKEN?
-			res.send "i am not on wit's friendlist yet. :("
-			console.log "HUBOT_WIT_TOKEN not set"
-			return
-
-		robot.http("https://api.wit.ai/message?q=#{encodeURI(query)}")
-		.header('Content-Type', 'application/json')
-		.header('Authorization', 'Bearer ' + process.env.HUBOT_WIT_TOKEN)
-		.header('Accept', 'application/vnd.wit.20141022+json')
-		.get() (err, r, body) ->
-			if err
-				res.send "Wit needs coffee :| #{err}"
-				console.log "wit error: #{err}"
-				return
-			
-			# got response back, routing
-			json = JSON.parse(body)
-			console.log "wit response: #{body}"
-			if json.outcomes.length > 0
-				for intent in json.outcomes
-					do(intent) ->
-						robot.emit "#{intent.intent}", {
+	  
+	  unless res.envelope.user.wit?
+	    res.envelope.user.wit = {context: {}}
+	  else unless res.envelope.user.wit.context?
+	    res.envelope.user.wit.context = {}
+	  
+	  wit.converse(res.envelope.user, query, res.envelope.user.wit.context, 
+	    (error, data) -> 
+	      if error 
+	        robot.logger.debug('Wit error: #{error}') 
+	      else 
+	        if data.msg?
+	          res.send data.msg
+	        if data.action?
+	          robot.emit "#{data.action}", {
 							res: res
-							entities: intent.entities
+							entities: data.entities
+							msg: data.msg
 						}
-						console.log "emit event: #{intent.intent}"
-			else
-				res.send "Sorry, could you please try to rephrase that in binary?"
+					if data.entities?
+					  res.envelope.user.wit.context.entities = data.entities
