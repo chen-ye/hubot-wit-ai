@@ -1,7 +1,7 @@
 {
   "name": "hubot-wit-ai",
   "description": "A hubot wit.ai router",
-  "version": "0.1.4",
+  "version": "0.2.4",
   "author": "Tianwei Liu <tianwei.liu89@gmail.com>",
   "license": "MIT",
 
