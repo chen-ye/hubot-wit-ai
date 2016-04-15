@@ -59,23 +59,25 @@ module.exports = (robot) ->
       askWit query, res
 
   askWit = (query, res) ->
+    robot.logger.debug res
     unless res.envelope.user.wit?
       res.envelope.user.wit = {context: {}}
     else unless res.envelope.user.wit.context?
       res.envelope.user.wit.context = {}
 
     wit.converse res.envelope.user, query, res.envelope.user.wit.context, (error, data) ->
+      robot.logger.debug res
       if error 
-        robot.logger.debug('Wit error: #{error}')
+        robot.logger.debug 'Wit error: #{error}'
       else 
         if data.msg?
           res.send data.msg
         if data.action?
-            robot.emit "#{data.action}",
-            {
-              res: res
-              entities: data.entities
-              msg: data.msg
-            }
+          cbData = {
+            res: res
+            entities: data.entities
+            msg: data.msg
+          }
+          robot.emit "#{data.action}", cbdata
         if data.entities?
           res.envelope.user.wit.context.entities = data.entities
