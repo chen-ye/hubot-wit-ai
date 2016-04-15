@@ -35,7 +35,7 @@ module.exports = (robot) ->
   }
   
   unless process.env.HUBOT_WIT_TOKEN?
-    res.send "i am not on wit's friendlist yet. :("
+    robot.send "i am not on wit's friendlist yet. :("
     robot.logger.error "HUBOT_WIT_TOKEN not set"
   else
     wit = new Wit(process.env.HUBOT_WIT_TOKEN, actions, robot.logger)
